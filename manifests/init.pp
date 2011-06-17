@@ -15,6 +15,10 @@
 #   *Optional* Path to local file we can use for our own work.
 # [bind_config_local_content]
 #   *Optional* The contents to install in $bind_config_local
+# [bind_config_zones]
+#   *Optional* Path to the file where we place all zone configuration.
+# [bind_config_zones_dir]
+#   *Optional* Path to zone directory where individual zones configuration is kept for munging.
 # [bind_user]
 #   *Optional* Bind user
 # [bind_group]
@@ -46,6 +50,8 @@ class bind (
   $bind_config_dir = $bind::params::bind_config_dir,
   $bind_config_local = $bind::params::bind_config_local,
   $bind_config_local_content = $bind::params::bind_config_local_content,
+  $bind_config_zones = $bind::params::bind_config_zones,
+  $bind_config_zones_dir = $bind::params::bind_config_zones_dir,
   $bind_user = $bind::params::bind_user,
   $bind_group = $bind::params::bind_group
 
@@ -74,28 +80,28 @@ class bind (
   ########################
   # Configuration: Zones #
   ########################
-  file { "${bind_config_dir}/named.conf.zones":
+  file { $bind_config_zones:
     owner => root,
     group => $bind_group,
     mode => "0644",
     require => Package[$bind_package],
     notify => Service[$bind_service],
   }
-  file { "${bind_config_dir}/zones.d":
+  file { $bind_config_zones_dir:
     ensure => directory,
     purge => true,
     recurse => true,
     require => Package[$bind_package],
     notify => Exec["create_bind_zones_conf"],
   }
-  file { "${bind_config_dir}/zones.d/00_header":
+  file { "${bind_config_zones_dir}/00_header":
     content => "# File managed by Puppet\n",
     notify => Exec["create_bind_zones_conf"],
   }
   exec { "create_bind_zones_conf":
-    command => "/bin/cat ${bind_config_dir}/zones.d/* > ${bind_config_dir}/named.conf.zones",
+    command => "/bin/cat ${bind_config_zones_dir}/* > ${bind_config_zones}",
     refreshonly => true,
-    require => [ Package[$bind_package], File["${bind_config_dir}/zones.d"] ],
+    require => [ Package[$bind_package], File[$bind_config_zones_dir] ],
     notify => Service[$bind_service],
   }
 

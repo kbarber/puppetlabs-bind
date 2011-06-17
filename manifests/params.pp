@@ -42,10 +42,14 @@ class bind::params {
       $bind_package = "bind9"
       $bind_service = "bind9"
       $bind_config_dir = "/etc/bind"
+      $bind_config_zones = "${bind_config_dir}/named.conf.zones"
+      $bind_config_zones_dir = "${bind_config_dir}/zones.d"
       $bind_config_local = "${bind_config_dir}/named.conf.local"
-      $bind_config_local_content = template("${module_name}/debian/named.conf.local")
       $bind_user = "bind"
       $bind_group = "bind"
+
+      # Content templates last (so over vars can be used)
+      $bind_config_local_content = template("${module_name}/debian/named.conf.local")
     }
     default: {
       fail("Operating system ${operatingsystem} is not supported")

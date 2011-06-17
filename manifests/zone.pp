@@ -43,7 +43,7 @@ define bind::zone (
 
   ) {
 
-  file { "${bind::params::bind_config_dir}/zones.d/${name}":
+  file { "${bind::params::bind_config_zones_dir}/${name}":
     content => template("${module_name}/zone.conf"),
     notify => Exec["create_bind_zones_conf"],
   }
