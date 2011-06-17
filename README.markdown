@@ -18,6 +18,7 @@ So this module was predominantly tested on with:
 
 * Puppet 2.7.0rc4
 * Debian Wheezy
+* Bind 9.7.3
 
 Other combinations may work, and we are happy to obviously take patches to support other stacks.
 
@@ -43,3 +44,14 @@ To setup a new bind server with all the default settings:
     }
 
 This of course on its own is useless without configuration.
+
+You can create zones like this:
+
+    node "dns1" {
+      class { "bind":
+      }
+      bind::zone { "desktops.mydomain.com":
+        type => "master",
+        file => "/var/lib/bind/desktops.mydomain.com.zone",
+      }
+    }

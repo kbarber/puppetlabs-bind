@@ -9,6 +9,16 @@
 #   *Optional* The name(s) of packages to install for bind.
 # [bind_service]
 #   *Optional* Service to use for starting bind.
+# [bind_config_dir]
+#   *Optional* Path to main bind configuration directory.
+# [bind_config_local]
+#   *Optional* Path to local file we can use for our own work.
+# [bind_config_local_content]
+#   *Optional* The contents to install in $bind_config_local
+# [bind_user]
+#   *Optional* Bind user
+# [bind_group]
+#   *Optional* Bind group
 #
 # == Variables
 #
@@ -32,7 +42,12 @@
 class bind (
 
   $bind_package = $bind::params::bind_package,
-  $bind_service = $bind::params::bind_service
+  $bind_service = $bind::params::bind_service,
+  $bind_config_dir = $bind::params::bind_config_dir,
+  $bind_config_local = $bind::params::bind_config_local,
+  $bind_config_local_content = $bind::params::bind_config_local_content,
+  $bind_user = $bind::params::bind_user,
+  $bind_group = $bind::params::bind_group
 
   ) inherits bind::params {
 
@@ -41,6 +56,46 @@ class bind (
   ############
   package { $bind_package:
     ensure => installed,
+    notify => Service[$bind_service],
+  }
+
+  #################
+  # Configuration #
+  #################
+  file { $bind_config_local:
+    content => $bind_config_local_content,
+    owner => root,
+    group => $bind_group,
+    mode => "0644",
+    require => Package[$bind_package],
+    notify => Service[$bind_service],
+  }
+
+  ########################
+  # Configuration: Zones #
+  ########################
+  file { "${bind_config_dir}/named.conf.zones":
+    owner => root,
+    group => $bind_group,
+    mode => "0644",
+    require => Package[$bind_package],
+    notify => Service[$bind_service],
+  }
+  file { "${bind_config_dir}/zones.d":
+    ensure => directory,
+    purge => true,
+    recurse => true,
+    require => Package[$bind_package],
+    notify => Exec["create_bind_zones_conf"],
+  }
+  file { "${bind_config_dir}/zones.d/00_header":
+    content => "# File managed by Puppet\n",
+    notify => Exec["create_bind_zones_conf"],
+  }
+  exec { "create_bind_zones_conf":
+    command => "/bin/cat ${bind_config_dir}/zones.d/* > ${bind_config_dir}/named.conf.zones",
+    refreshonly => true,
+    require => [ Package[$bind_package], File["${bind_config_dir}/zones.d"] ],
     notify => Service[$bind_service],
   }
 
