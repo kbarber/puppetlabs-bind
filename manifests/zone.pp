@@ -45,12 +45,13 @@ define bind::zone (
   $allow_update = undef,
   $custom_config = undef,
   $zone_contact = "hostmaster@${name}",
-  $nameservers
+  $nameservers = [ $fqdn ]
 
   ) {
 
   $zone_cfg_file = "${bind::bind_config_zones_dir}/${name}"
   $zone_contact_dns = regsubst($zone_contact, "@", ".")
+  $rndc_reload_exec = "rndc_reload_${name}"
 
   # Create sample content
   file { $zone_file:
@@ -58,14 +59,24 @@ define bind::zone (
     owner => $bind::bind_user,
     group => $bind::bind_group,
     mode => "0644",
-    content => template("bind/sample.zone"),
+    content => template("${module_name}/sample.zone"),
     before => File[$zone_cfg_file],
-    notify => Service[$bind::bind_service],
+    notify => $allow_update ? {
+      undef => Exec[$rndc_reload_exec],
+      default => undef
+    }
   }
 
   file { $zone_cfg_file:
     content => template("${module_name}/zone.conf"),
     notify => Exec["create_bind_zones_conf"],
+  }
+
+  exec { $rndc_reload_exec:
+    refreshonly => true,
+    command => "rndc reload ${name}",
+    path => "/usr/sbin",
+    require => Service[$bind::bind_service],
   }
 
 }
