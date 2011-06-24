@@ -19,6 +19,10 @@
 #   *Optional* Path to the file where we place all zone configuration.
 # [bind_config_zones_dir]
 #   *Optional* Path to zone directory where individual zones configuration is kept for munging.
+# [bind_data_dir]
+#   *Optional* Path to the bind data directory (zones belong here for example).
+# [bind_data_zones_dir]
+#   *Optional* Path to data directory where zone files are usually kept.
 # [bind_user]
 #   *Optional* Bind user
 # [bind_group]

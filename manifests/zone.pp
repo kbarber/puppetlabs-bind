@@ -40,7 +40,7 @@
 define bind::zone (
 
   $type = "master",
-  $zone_file = "${bind::params::bind_data_zones_dir}/${name}.zone",
+  $zone_file = "${bind::bind_data_zones_dir}/${name}.zone",
   $class = "IN",
   $allow_update = undef,
   $custom_config = undef,
@@ -49,7 +49,7 @@ define bind::zone (
 
   ) {
 
-  $zone_cfg_file = "${bind::params::bind_config_zones_dir}/${name}"
+  $zone_cfg_file = "${bind::bind_config_zones_dir}/${name}"
   $zone_contact_dns = regsubst($zone_contact, "@", ".")
 
   # Create sample content
