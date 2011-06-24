@@ -17,6 +17,10 @@
 #   List of address to allow updates from.
 # [custom_config]
 #   The custom contents of the zone configuration.
+# [zone_contact]
+#   Email address of contact for the zone.
+# [nameservers]
+#   Name servers for zone.
 #
 # == Examples
 #
@@ -36,14 +40,30 @@
 define bind::zone (
 
   $type = "master",
-  $file = undef,
+  $zone_file = "${bind::params::bind_data_zones_dir}/${name}.zone",
   $class = "IN",
   $allow_update = undef,
-  $custom_config = undef
+  $custom_config = undef,
+  $zone_contact = "hostmaster@${name}",
+  $nameservers
 
   ) {
 
-  file { "${bind::params::bind_config_zones_dir}/${name}":
+  $zone_cfg_file = "${bind::params::bind_config_zones_dir}/${name}"
+  $zone_contact_dns = regsubst($zone_contact, "@", ".")
+
+  # Create sample content
+  file { $zone_file:
+    replace => false,
+    owner => $bind::bind_user,
+    group => $bind::bind_group,
+    mode => "0644",
+    content => template("bind/sample.zone"),
+    before => File[$zone_cfg_file],
+    notify => Service[$bind::bind_service],
+  }
+
+  file { $zone_cfg_file:
     content => template("${module_name}/zone.conf"),
     notify => Exec["create_bind_zones_conf"],
   }

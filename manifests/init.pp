@@ -52,6 +52,8 @@ class bind (
   $bind_config_local_content = $bind::params::bind_config_local_content,
   $bind_config_zones = $bind::params::bind_config_zones,
   $bind_config_zones_dir = $bind::params::bind_config_zones_dir,
+  $bind_data_dir = $bind::params::bind_data_dir,
+  $bind_data_zones_dir = $bind::params::bind_data_zones_dir,
   $bind_user = $bind::params::bind_user,
   $bind_group = $bind::params::bind_group
 
@@ -103,6 +105,14 @@ class bind (
     refreshonly => true,
     require => [ Package[$bind_package], File[$bind_config_zones_dir] ],
     notify => Service[$bind_service],
+  }
+
+  # Storage area for zones
+  file { $bind_data_zones_dir:
+    ensure => directory,
+    owner => $bind_user,
+    group => $bind_group,
+    mode => "0755",
   }
 
   ############

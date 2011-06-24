@@ -45,6 +45,8 @@ class bind::params {
       $bind_config_zones = "${bind_config_dir}/named.conf.zones"
       $bind_config_zones_dir = "${bind_config_dir}/zones.d"
       $bind_config_local = "${bind_config_dir}/named.conf.local"
+      $bind_data_dir = "/var/lib/bind"
+      $bind_data_zones_dir = "${bind_data_dir}/zones"
       $bind_user = "bind"
       $bind_group = "bind"
 
