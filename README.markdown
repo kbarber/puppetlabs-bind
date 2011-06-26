@@ -60,3 +60,17 @@ You can create zones like this:
 
 The 'config' hash will take most settings that are acceptable according to the
 BIND zone file grammar.
+
+If you want to use views, then you can do this:
+
+    node "dns1" {
+      class { "bind":
+      }
+      bind::view { "external": }
+      bind::view::zone { "external:desktops.mydomain.com":
+        type => "master",
+      }
+    }
+
+*Note:* You can't mix and match views and normal zones. If you choose to use
+views, then make sure you always create zones using the bind::view::zone resource only.
