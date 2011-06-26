@@ -50,13 +50,13 @@ define bind::view::zone (
   $zone = $namesplit[1]
   
   # Always require the view to be configured first
-  require(Bind::View[$view])
+  #require(Bind::View[$view])
 
   if(!defined($options['file'])) {
     $options['file'] = "${bind::bind_data_zones_dir}/${name}.zone"
   }
 
-  $zone_cfg_file = "${bind::bind_config_zones_dir}/${name}"
+  $zone_cfg_file = "${bind::bind_config_viewzones_dir}/${view}/${zone}.conf"
   $zone_contact_dns = regsubst($zone_contact, "@", ".")
   $rndc_reload_exec = "rndc_reload_${name}"
 

@@ -1,6 +1,6 @@
 $ORIGIN .
 $TTL 604800	; 1 week
-<%= name %>	IN SOA	<%= nameservers[0] %>. <%= zone_contact_dns %>. (
+<%= zone %>	IN SOA	<%= nameservers[0] %>. <%= zone_contact_dns %>. (
 				0          ; serial
 				604800     ; refresh (1 week)
 				86400      ; retry (1 day)

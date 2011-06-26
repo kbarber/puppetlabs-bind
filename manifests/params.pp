@@ -16,6 +16,8 @@
 #   Package(s) for installing the server.
 # [bind_service]
 #   Service name for bind.
+# [bind_config}
+#   Main bind configuration file.
 # [bind_config_dir]
 #   Path to main bind configuration directory.
 # [bind_config_zones]
@@ -56,6 +58,7 @@ class bind::params {
       $bind_package = "bind9"
       $bind_service = "bind9"
       $bind_config_dir = "/etc/bind"
+      $bind_config = "${bind_config_dir}/named.conf"
       $bind_config_zones = "${bind_config_dir}/named.conf.zones"
       $bind_config_zones_dir = "${bind_config_dir}/zones.d"
       $bind_config_views = "${bind_config_dir}/named.conf.views"

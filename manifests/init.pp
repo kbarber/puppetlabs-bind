@@ -9,6 +9,8 @@
 #   *Optional* The name(s) of packages to install for bind.
 # [bind_service]
 #   *Optional* Service to use for starting bind.
+# [bind_config]
+#   *Optional* Main bind configuration file.
 # [bind_config_dir]
 #   *Optional* Path to main bind configuration directory.
 # [bind_config_local]
@@ -57,6 +59,7 @@ class bind (
 
   $bind_package = $bind::params::bind_package,
   $bind_service = $bind::params::bind_service,
+  $bind_config = $bind::params::bind_config,
   $bind_config_dir = $bind::params::bind_config_dir,
   $bind_config_local = $bind::params::bind_config_local,
   $bind_config_local_content = $bind::params::bind_config_local_content,
@@ -83,6 +86,15 @@ class bind (
   #################
   # Configuration #
   #################
+  file { $bind_config:
+    content => template("${module_name}/named.conf"),
+    owner => root,
+    group => $bind_group,
+    mode => "0644",
+    require => Package[$bind_package],
+    notify => Service[$bind_service],
+  }
+
   file { $bind_config_local:
     content => $bind_config_local_content,
     owner => root,

@@ -49,6 +49,7 @@ define bind::zone (
     $options['file'] = "${bind::bind_data_zones_dir}/${name}.zone"
   }
 
+  $zone = $name
   $zone_cfg_file = "${bind::bind_config_zones_dir}/${name}"
   $zone_contact_dns = regsubst($zone_contact, "@", ".")
   $rndc_reload_exec = "rndc_reload_${name}"

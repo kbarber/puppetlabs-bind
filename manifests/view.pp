@@ -13,7 +13,7 @@
 #   Class of view. Usually IN.
 # [match_clients]
 #   An array of clients to match. Default value is 'any'.
-# [match_destination]
+# [match_destinations]
 #   An array of destinations to match. Default value is 'any'.
 # [options]
 #   An array of options to configure the view.
@@ -40,7 +40,7 @@ define bind::view (
 
   $class = "IN",
   $match_clients = ['any'],
-  $match_destination = ['any'],
+  $match_destinations = ['any'],
   $options = undef
 
   ) {
@@ -49,6 +49,7 @@ define bind::view (
   file { $view_cfg_file:
     content => template("${module_name}/view.conf"),
     notify => Exec["create_bind_views_conf"],
+    require => File["${bind::bind_config_viewzones_dir}/${name}.zones.conf"],
   }
 
   #########
@@ -61,14 +62,19 @@ define bind::view (
   	purge => true,
   	notify => Exec["create_bind_viewzones_conf_${name}"]
   }
-  file { "${bind_config_views_dir}/00_header.conf":
+  file { "${view_cfg_zones_dir}/00_header.conf":
     content => "# File managed by Puppet\n",
-    notify => Exec["create_bind_views_conf"],
+    notify => Exec["create_bind_viewzones_conf_${name}"],
   }
   exec { "create_bind_viewzones_conf_${name}":
     command => "/bin/cat ${view_cfg_zones_dir}/*.conf > ${bind::bind_config_viewzones_dir}/${name}.zones.conf",
     refreshonly => true,
-    require => [ Package[$bind_package], File[$bind_config_views_dir] ],
-    notify => Service[$bind_service],
+    require => [ Package[$bind::bind_package], File[$bind::bind_config_views_dir] ],
+    notify => Service[$bind::bind_service],
+  }
+  file { "${bind::bind_config_viewzones_dir}/${name}.zones.conf":
+    ensure => present,
+    owner => "root",
+    group => "root",
   }
 }
