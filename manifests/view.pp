@@ -45,11 +45,30 @@ define bind::view (
 
   ) {
 
-  $view_cfg_file = "${bind::bind_config_views_dir}/${name}"
-
+  $view_cfg_file = "${bind::bind_config_views_dir}/${name}.conf"
   file { $view_cfg_file:
     content => template("${module_name}/view.conf"),
     notify => Exec["create_bind_views_conf"],
   }
 
+  #########
+  # Zones #
+  #########
+  $view_cfg_zones_dir = "${bind::bind_config_viewzones_dir}/${name}"
+  file { $view_cfg_zones_dir:
+  	ensure => directory,
+  	recurse => true,
+  	purge => true,
+  	notify => Exec["create_bind_viewzones_conf_${name}"]
+  }
+  file { "${bind_config_views_dir}/00_header.conf":
+    content => "# File managed by Puppet\n",
+    notify => Exec["create_bind_views_conf"],
+  }
+  exec { "create_bind_viewzones_conf_${name}":
+    command => "/bin/cat ${view_cfg_zones_dir}/*.conf > ${bind::bind_config_viewzones_dir}/${name}.zones.conf",
+    refreshonly => true,
+    require => [ Package[$bind_package], File[$bind_config_views_dir] ],
+    notify => Service[$bind_service],
+  }
 }

@@ -26,6 +26,8 @@
 #   Path to view configuration file.
 # [bind_config_views_dir]
 #   Path to view directory where we assemble views.
+# [bind_config_viewzones_dir]
+#   Path to per-view zones directory.
 # [bind_config_local]
 #   Path to local file we can use for our own work.
 # [bind_data_dir]
@@ -58,6 +60,7 @@ class bind::params {
       $bind_config_zones_dir = "${bind_config_dir}/zones.d"
       $bind_config_views = "${bind_config_dir}/named.conf.views"
       $bind_config_views_dir = "${bind_config_dir}/views.d"
+      $bind_config_viewzones_dir = "${bind_config_dir}/viewzones.d"
       $bind_config_local = "${bind_config_dir}/named.conf.local"
       $bind_data_dir = "/var/lib/bind"
       $bind_data_zones_dir = "${bind_data_dir}/zones"

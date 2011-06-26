@@ -7,3 +7,4 @@
 //include "/etc/bind/zones.rfc1918";
 
 include "<%= bind_config_zones %>";
+include "<%= bind_config_views %>";

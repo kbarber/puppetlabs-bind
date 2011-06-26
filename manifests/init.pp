@@ -20,9 +20,11 @@
 # [bind_config_zones_dir]
 #   *Optional* Path to zone directory where individual zones configuration is kept for munging.
 # [bind_config_views]
-#   *Optional* Path to the file where we place all zone configuration.
+#   *Optional* Path to the file where we place all view configuration.
 # [bind_config_views_dir]
-#   *Optional* Path to zone directory where individual zones configuration is kept for munging.
+#   *Optional* Path to view directory where individual zones configuration is kept for munging.
+# [bind_config_viewzones_dir]
+#   *Optional* Path to per-view zone directories.
 # [bind_data_dir]
 #   *Optional* Path to the bind data directory (zones belong here for example).
 # [bind_data_zones_dir]
@@ -62,6 +64,7 @@ class bind (
   $bind_config_zones_dir = $bind::params::bind_config_zones_dir,
   $bind_config_views = $bind::params::bind_config_views,
   $bind_config_views_dir = $bind::params::bind_config_views_dir,
+  $bind_config_viewzones_dir = $bind::params::bind_config_viewzones_dir,
   $bind_data_dir = $bind::params::bind_data_dir,
   $bind_data_zones_dir = $bind::params::bind_data_zones_dir,
   $bind_user = $bind::params::bind_user,
@@ -142,15 +145,21 @@ class bind (
     require => Package[$bind_package],
     notify => Exec["create_bind_views_conf"],
   }
-  file { "${bind_config_views_dir}/00_header":
+  file { "${bind_config_views_dir}/00_header.conf":
     content => "# File managed by Puppet\n",
     notify => Exec["create_bind_views_conf"],
   }
   exec { "create_bind_views_conf":
-    command => "/bin/cat ${bind_config_views_dir}/* > ${bind_config_views}",
+    command => "/bin/cat ${bind_config_views_dir}/*.conf > ${bind_config_views}",
     refreshonly => true,
     require => [ Package[$bind_package], File[$bind_config_views_dir] ],
     notify => Service[$bind_service],
+  }
+  file { $bind_config_viewzones_dir:
+  	ensure => directory,
+  	purge => true,
+  	recurse => true,
+  	require => Package[$bind_package],
   }
 
   ############
