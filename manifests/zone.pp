@@ -15,12 +15,14 @@
 #   Email address of contact for the zone.
 # [nameservers]
 #   Name servers for zone.
+# [options]
+#   A hash of options to configure the zone.
 #
 # == Examples
 #
 #   bind::zone { "vms.cloud.bob.sh":
 #     type => "master",
-#     config => {
+#     options => {
 #       file => "vms.cloud.bob.sh.zone",
 #     }
 #   }
@@ -39,12 +41,12 @@ define bind::zone (
   $class = "IN",
   $zone_contact = "hostmaster@${name}",
   $nameservers = [ $fqdn ],
-  $config = undef
+  $options = undef
 
   ) {
 
-  if(!defined($config['file'])) {
-    $config['file'] = "${bind::bind_data_zones_dir}/${name}.zone"
+  if(!defined($options['file'])) {
+    $options['file'] = "${bind::bind_data_zones_dir}/${name}.zone"
   }
 
   $zone_cfg_file = "${bind::bind_config_zones_dir}/${name}"

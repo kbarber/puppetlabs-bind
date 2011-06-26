@@ -19,6 +19,10 @@
 #   *Optional* Path to the file where we place all zone configuration.
 # [bind_config_zones_dir]
 #   *Optional* Path to zone directory where individual zones configuration is kept for munging.
+# [bind_config_views]
+#   *Optional* Path to the file where we place all zone configuration.
+# [bind_config_views_dir]
+#   *Optional* Path to zone directory where individual zones configuration is kept for munging.
 # [bind_data_dir]
 #   *Optional* Path to the bind data directory (zones belong here for example).
 # [bind_data_zones_dir]
@@ -56,6 +60,8 @@ class bind (
   $bind_config_local_content = $bind::params::bind_config_local_content,
   $bind_config_zones = $bind::params::bind_config_zones,
   $bind_config_zones_dir = $bind::params::bind_config_zones_dir,
+  $bind_config_views = $bind::params::bind_config_views,
+  $bind_config_views_dir = $bind::params::bind_config_views_dir,
   $bind_data_dir = $bind::params::bind_data_dir,
   $bind_data_zones_dir = $bind::params::bind_data_zones_dir,
   $bind_user = $bind::params::bind_user,
@@ -117,6 +123,34 @@ class bind (
     owner => $bind_user,
     group => $bind_group,
     mode => "0755",
+  }
+
+  ########################
+  # Configuration: views #
+  ########################
+  file { $bind_config_views:
+    owner => root,
+    group => $bind_group,
+    mode => "0644",
+    require => Package[$bind_package],
+    notify => Service[$bind_service],
+  }
+  file { $bind_config_views_dir:
+    ensure => directory,
+    purge => true,
+    recurse => true,
+    require => Package[$bind_package],
+    notify => Exec["create_bind_views_conf"],
+  }
+  file { "${bind_config_views_dir}/00_header":
+    content => "# File managed by Puppet\n",
+    notify => Exec["create_bind_views_conf"],
+  }
+  exec { "create_bind_views_conf":
+    command => "/bin/cat ${bind_config_views_dir}/* > ${bind_config_views}",
+    refreshonly => true,
+    require => [ Package[$bind_package], File[$bind_config_views_dir] ],
+    notify => Service[$bind_service],
   }
 
   ############
