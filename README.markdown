@@ -52,6 +52,11 @@ You can create zones like this:
       }
       bind::zone { "desktops.mydomain.com":
         type => "master",
-        file => "/var/lib/bind/desktops.mydomain.com.zone",
+        config => {
+          file => "/var/lib/bind/desktops.mydomain.com.zone",
+        }
       }
     }
+
+The 'config' hash will take most settings that are acceptable according to the
+BIND zone file grammar.

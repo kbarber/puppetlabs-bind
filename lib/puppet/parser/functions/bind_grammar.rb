@@ -1,8 +1,8 @@
 Puppet::Parser::Functions::newfunction(:bind_grammar, 
   :type => :rvalue, 
   :doc => "Converts Puppet variables to Bind grammar.") do |args|
-     
-  def puppet2bind (pvar, input = "")
+
+  def puppet2bind (arg, pvar, input = "")
     output = input
     case pvar.class.to_s
     when "Hash"
@@ -16,7 +16,7 @@ Puppet::Parser::Functions::newfunction(:bind_grammar,
       output << " {"
       pvar.each { |key|
         if key.class == Hash then
-          puppet2bind(key, output)
+          puppet2bind(arg, key, output)
         else
           output << " " + key + ";"
         end
@@ -24,12 +24,16 @@ Puppet::Parser::Functions::newfunction(:bind_grammar,
       output << " };"
       return output
     when "String"
-      output << " " + pvar + ";"
+      if ["file", "journal", "ixfr-base", "ixfr-tmp-file", "database"].include?(arg) then
+        output << " \"" + pvar + "\";"
+      else
+        output << " " + pvar + ";"
+      end
       return output
     else
-      exit("asdf")
+      exit("Fail!")
     end
   end
   
-  puppet2bind(argv[0])
+  args[0] + puppet2bind(args[0], args[1])
 end

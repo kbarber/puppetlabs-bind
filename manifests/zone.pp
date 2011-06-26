@@ -11,12 +11,6 @@
 #   The type of zone.
 # [class]
 #   Class of zone. Usually IN.
-# [file]
-#   Path to zone file.
-# [allow_update]
-#   List of address to allow updates from.
-# [custom_config]
-#   The custom contents of the zone configuration.
 # [zone_contact]
 #   Email address of contact for the zone.
 # [nameservers]
@@ -26,7 +20,9 @@
 #
 #   bind::zone { "vms.cloud.bob.sh":
 #     type => "master",
-#     file => "vms.cloud.bob.sh.zone",
+#     config => {
+#       file => "vms.cloud.bob.sh.zone",
+#     }
 #   }
 #
 # == Authors
@@ -40,20 +36,23 @@
 define bind::zone (
 
   $type = "master",
-  $zone_file = "${bind::bind_data_zones_dir}/${name}.zone",
   $class = "IN",
-  $allow_update = undef,
-  $custom_config = undef,
   $zone_contact = "hostmaster@${name}",
-  $nameservers = [ $fqdn ]
+  $nameservers = [ $fqdn ],
+  $config = undef
 
   ) {
+
+  if(!defined($config['file'])) {
+    $config['file'] = "${bind::bind_data_zones_dir}/${name}.zone"
+  }
 
   $zone_cfg_file = "${bind::bind_config_zones_dir}/${name}"
   $zone_contact_dns = regsubst($zone_contact, "@", ".")
   $rndc_reload_exec = "rndc_reload_${name}"
 
   # Create sample content
+  $zone_file = $config['file']
   file { $zone_file:
     replace => false,
     owner => $bind::bind_user,
@@ -61,7 +60,7 @@ define bind::zone (
     mode => "0644",
     content => template("${module_name}/sample.zone"),
     before => File[$zone_cfg_file],
-    notify => $allow_update ? {
+    notify => $config["allow-update"] ? {
       undef => Exec[$rndc_reload_exec],
       default => undef
     }
