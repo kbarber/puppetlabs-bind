@@ -7,6 +7,9 @@ Puppet::Parser::Functions::newfunction(:bind_grammar,
 
   def puppet2bind (arg, pvar, input = "")
     output = input
+
+    string_args = ["directory", "file", "journal", "ixfr-base", "ixfr-tmp-file", "database"]
+
     case pvar.class.to_s
     when "Hash"
       output << " " + pvar.keys[0]
@@ -27,7 +30,7 @@ Puppet::Parser::Functions::newfunction(:bind_grammar,
       output << " };"
       return output
     when "String"
-      if ["file", "journal", "ixfr-base", "ixfr-tmp-file", "database"].include?(arg) then
+      if string_args.include?(arg) then
         output << " \"" + pvar + "\";"
       else
         output << " " + pvar + ";"

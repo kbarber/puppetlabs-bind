@@ -2,6 +2,9 @@
 #
 # == Parameters
 #
+# [options]
+#   A hash of global options for bind.
+#
 # Detailed customisation parameters below. You shouldn't normally need to change
 # these as we try to look them up ourselves.
 # 
@@ -27,6 +30,8 @@
 #   *Optional* Path to view directory where individual zones configuration is kept for munging.
 # [bind_config_viewzones_dir]
 #   *Optional* Path to per-view zone directories.
+# [bind_config_options]
+#   *Optional* Path to options file.
 # [bind_data_dir]
 #   *Optional* Path to the bind data directory (zones belong here for example).
 # [bind_data_zones_dir]
@@ -57,6 +62,7 @@
 #
 class bind (
 
+  $options = {},
   $bind_package = $bind::params::bind_package,
   $bind_service = $bind::params::bind_service,
   $bind_config = $bind::params::bind_config,
@@ -68,6 +74,8 @@ class bind (
   $bind_config_views = $bind::params::bind_config_views,
   $bind_config_views_dir = $bind::params::bind_config_views_dir,
   $bind_config_viewzones_dir = $bind::params::bind_config_viewzones_dir,
+  $bind_config_options = $bind::params::bind_config_options,
+  $bind_cache_dir = $bind::params::bind_cache_dir,
   $bind_data_dir = $bind::params::bind_data_dir,
   $bind_data_zones_dir = $bind::params::bind_data_zones_dir,
   $bind_user = $bind::params::bind_user,
@@ -168,10 +176,30 @@ class bind (
     notify => Service[$bind_service],
   }
   file { $bind_config_viewzones_dir:
-  	ensure => directory,
-  	purge => true,
-  	recurse => true,
-  	require => Package[$bind_package],
+    ensure => directory,
+    purge => true,
+    recurse => true,
+    require => Package[$bind_package],
+  }
+
+  ##########################
+  # Configuration: Options #
+  ##########################
+  if(!defined($options["auth-nxdomain"])) {
+    $options["auth-nxdomain"] = "no"
+  }
+  if(!defined($options["listen-on-v6"])) {
+    $options["listen-on-v6"] = ["any"]
+  }
+  if(!defined($options["directory"])) {
+    $options["directory"] = $bind_cache_dir
+  }
+  file { $bind_config_options:
+    content => template("${module_name}/options.conf"),
+    owner => "root",
+    group => $bind_group,
+    mode => "0644",
+    notify => Service[$bind_service],
   }
 
   ############
