@@ -54,7 +54,7 @@ define bind::zone (
   $rndc_reload_exec = "rndc_reload_${name}"
 
   # Create sample content
-  $zone_file = $config['file']
+  $zone_file = $options['file']
   file { $zone_file:
     replace => false,
     owner => $bind::bind_user,
@@ -62,7 +62,7 @@ define bind::zone (
     mode => "0644",
     content => template("${module_name}/sample.zone"),
     before => File[$zone_cfg_file],
-    notify => $config["allow-update"] ? {
+    notify => $options["allow-update"] ? {
       undef => Exec[$rndc_reload_exec],
       default => undef
     }
