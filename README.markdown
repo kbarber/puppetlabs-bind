@@ -8,19 +8,23 @@ This module is provided for the installation and configuration of ISC bind.
 
 ### Disclaimer
 
-Warning! While this software is written in the best interest of quality it has not been formally tested by our QA teams. Use at your own risk, but feel free to enjoy and perhaps improve it while you do.
+Warning! While this software is written in the best interest of quality it has 
+not been formally tested by our QA teams. Use at your own risk, but feel free to 
+enjoy and perhaps improve it while you do.
 
-Please see the included Apache Software License for more legal details regarding warranty.
+Please see the included Apache Software License for more legal details regarding 
+warranty.
 
 ### Requirements
 
-So this module was predominantly tested on with:
+So this module was predominantly tested with:
 
 * Puppet 2.7.0rc4
 * Debian Wheezy
 * Bind 9.7.3
 
-Other combinations may work, and we are happy to obviously take patches to support other stacks.
+Other combinations may work, and we are happy to obviously take patches to 
+support other stacks.
 
 # Installation
 
@@ -28,11 +32,14 @@ As with most modules, its best to access this module from the forge:
 
 http://forge.puppetlabs.com/
 
-If you want the bleeding edge (and potentially broken) version from github, download the module into your modulepath on your Puppetmaster. If you are not sure where your module path is try this command:
+If you want the bleeding edge (and potentially broken) version from github, 
+download the module into your modulepath on your Puppetmaster. If you are not 
+sure where your module path is try this command:
 
   puppet --configprint modulepath
 
-Depending on the version of Puppet, you may need to restart the puppetmasterd (or Apache) process before the functions will work.
+Depending on the version of Puppet, you may need to restart the puppetmasterd 
+(or Apache) process before the functions will work.
 
 # Quick Start
 
@@ -73,4 +80,19 @@ If you want to use views, then you can do this:
     }
 
 *Note:* You can't mix and match views and normal zones. If you choose to use
-views, then make sure you always create zones using the bind::view::zone resource only.
+views, then make sure you always create zones using the bind::view::zone 
+resource only.
+
+To specify specific options to BIND when first configuring it, you can use the
+options parameter:
+
+    node "dns1" {
+      class { "bind":
+        options => {
+          'allow-query' => ['192.168.1.2'],
+          'statistics-interval => 60,
+        }
+      }
+    }
+    
+This populates your global configuration.
