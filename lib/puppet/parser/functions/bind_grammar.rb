@@ -2,6 +2,9 @@ Puppet::Parser::Functions::newfunction(:bind_grammar,
   :type => :rvalue, 
   :doc => "Converts Puppet variables to Bind grammar.") do |args|
 
+  raise(Puppet::ParseError, "bind_grammar(): Wrong number of arguments " +
+      "given (#{args.size} for 2)") if args.size != 2
+
   def puppet2bind (arg, pvar, input = "")
     output = input
     case pvar.class.to_s
